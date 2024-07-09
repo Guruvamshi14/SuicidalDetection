@@ -13,7 +13,7 @@ nltk.download('punkt')
 nltk.download('stopwords')
 
 # Load the saved model
-model_file = 'suicide_detection_model.joblib'
+model_file = 'suicidal_detection_model.joblib'
 pipeline = joblib.load(model_file)
 
 # Data preprocessing function
