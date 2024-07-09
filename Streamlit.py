@@ -45,16 +45,19 @@ def classify_user_input(input_text):
     return classify_text(label)
 
 # Function to send an email if the user is classified as suicidal
-def send_email(to_email, subject, message):
-    from_email = 'guruvamshi1718@gmail.com'
-    from_password = 'ezct wotf fnjw anrc'  # Use the app password generated from your Google account
-
+def send_email(to_email, user_name):
+    from_email = 'your_email@example.com'
+    from_password = 'your_app_password'  # Use the app password generated from your Google account
+    
+    subject = 'Suicidal Alert'
+    message = f'Dear {user_name},\n\nOur system has classified your recent input as having suicidal tendencies. Please seek immediate help and talk to someone you trust.\n\nBest regards,\nYour Support Team'
+    
     msg = MIMEMultipart()
     msg['From'] = from_email
     msg['To'] = to_email
     msg['Subject'] = subject
     msg.attach(MIMEText(message, 'plain'))
-
+    
     try:
         server = smtplib.SMTP('smtp.gmail.com', 587)
         server.starttls()
@@ -62,25 +65,33 @@ def send_email(to_email, subject, message):
         server.send_message(msg)
         server.quit()
         st.success("Email sent successfully")
-    except smtplib.SMTPException as e:
-        st.error(f"Failed to send email: {e}")
     except Exception as e:
-        st.error(f"An error occurred: {e}")
+        st.error(f"Failed to send email: {e}")
+
+# Function to classify text and notify if suicidal
+def classify_and_notify(input_text, user_email, user_name):
+    result = classify_user_input(input_text)
+    
+    if result == "suicidal":
+        send_email(user_email, user_name)
+    
+    return result
 
 # Streamlit application
 st.title("Suicide Detection and Notification")
 
-# Text input for user text
-user_input = st.text_area("Enter a text to classify:")
+# Text input for user name
+user_name = st.text_input("Enter your name:")
 
 # Text input for user email
 user_email = st.text_input("Enter your email address:")
 
+# Text input for user text
+user_input = st.text_area("Enter a text to classify:")
+
 if st.button("Classify and Notify"):
-    if user_input and user_email:
-        result = classify_user_input(user_input)
-        if result == "suicidal":
-            send_email(user_email, 'Suicidal Alert', 'A user has been classified as suicidal.')
+    if user_input and user_email and user_name:
+        result = classify_and_notify(user_input, user_email, user_name)
         st.write(f"Category: {result}")
     else:
-        st.error("Please enter both text and email address.")
+        st.error("Please enter your name, email address, and text.")
